@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Lost and Found Tracking System</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+:root {
+    --text-color: #000;
+    --input-bg: rgba(255,255,255,0.6);
+    --border-color: rgba(0,0,0,0.2);
+}
+
+body.dark {
+    --text-color: #ffffff;
+    --input-bg: rgba(255,255,255,0.1);
+    --border-color: rgba(255,255,255,0.3);
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: 0.6s ease;
+    background: linear-gradient(-45deg, #ffecd2, #fcb69f, #a1c4fd, #c2e9fb);
+    background-size: 400% 400%;
+    animation: gradientLight 12s ease infinite;
+}
+
+@keyframes gradientLight {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+body.dark {
+    background: linear-gradient(-45deg, #0f2027, #203a43, #2c5364, #000000);
+    background-size: 400% 400%;
+    animation: gradientDark 12s ease infinite;
+}
+
+@keyframes gradientDark {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Theme Toggle */
+.theme-toggle {
+    position: fixed;
+    top: 20px;
+    right: 25px;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 55px;
+    height: 28px;
+}
+
+.switch input { display: none; }
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    background-color: #ccc;
+    border-radius: 34px;
+    top: 0; left: 0; right: 0; bottom: 0;
+    transition: .4s;
+}
+
+.slider:before {
+    position: absolute;
+    content: "🌙";
+    font-size: 14px;
+    line-height: 22px;
+    height: 22px;
+    width: 22px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    border-radius: 50%;
+    text-align: center;
+    transition: .4s;
+}
+
+input:checked + .slider {
+    background-color: #2196F3;
+}
+
+input:checked + .slider:before {
+    transform: translateX(26px);
+    content: "☀";
+}
+
+/* Card */
+.card {
+    width: 380px;
+    padding: 35px;
+    border-radius: 16px;
+    backdrop-filter: blur(15px);
+    background: rgba(255,255,255,0.25);
+    border: 1px solid rgba(255,255,255,0.3);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    text-align: center;
+    color: var(--text-color);
+}
+
+body.dark .card {
+    background: rgba(0,0,0,0.35);
+}
+
+h2 { margin-bottom: 20px; }
+
+/* Form */
+.form-group {
+    width: 85%;
+    margin: 10px auto;
+    position: relative;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px 40px 12px 12px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    background: var(--input-bg);
+    color: var(--text-color);
+    outline: none;
+    box-sizing: border-box;
+}
+
+/* SVG Eye */
+.eye-btn {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+.login-btn {
+    width: 85%;
+    padding: 12px;
+    margin-top: 10px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    background: #007bff;
+    color: white;
+    font-weight: bold;
+}
+
+.error {
+    color: red;
+    font-size: 13px;
+    margin-top: 8px;
+}
+
+.toggle-link {
+    margin-top: 15px;
+    font-size: 14px;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.social-section {
+    display: none;
+    margin-top: 20px;
+}
+
+.social-btn {
+    width: 85%;
+    padding: 10px;
+    margin: 6px auto;
+    display: block;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    color: white;
+    font-weight: bold;
+}
+
+.google { background: #db4437; }
+.facebook { background: #3b5998; }
+.github { background: #000; }
+
+</style>
+</head>
+
+<body>
+
+<div class="theme-toggle">
+    <label class="switch">
+        <input type="checkbox" id="themeSwitch">
+        <span class="slider"></span>
+    </label>
+</div>
+
+<div class="card">
+
+<h2 id="formTitle">Login</h2>
+
+<!-- Fixed form -->
+<form method="POST" action="login.php" id="authForm">
+
+<div class="form-group" id="nameField" style="display:none;">
+    <input type="text" id="name" name="fullname" placeholder="Full Name">
+</div>
+
+<div class="form-group">
+    <input type="email" id="email" name="email" placeholder="Email">
+</div>
+
+<div class="form-group">
+    <input type="password" id="password" name="password" placeholder="Password">
+
+    <span class="eye-btn" onclick="togglePassword()">
+        <svg xmlns="http://www.w3.org/2000/svg"
+             width="20" height="20" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round">
+
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+            <line id="eyeSlash"
+                  x1="3" y1="3" x2="21" y2="21"
+                  style="display: none;" />
+        </svg>
+    </span>
+</div>
+
+<div class="form-group" id="confirmField" style="display:none;">
+    <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm Password">
+</div>
+
+<div id="errorMsg" class="error"></div>
+
+<button type="submit" class="login-btn" id="submitBtn">Login</button>
+
+</form>
+
+<div class="social-section" id="socialSection">
+    <div style="margin:15px 0; font-size:14px;">
+        Or sign up with
+    </div>
+
+    <button class="social-btn google">Sign up with Google</button>
+    <button class="social-btn facebook">Sign up with Facebook</button>
+    <button class="social-btn github">Sign up with GitHub</button>
+</div>
+
+<div class="toggle-link" onclick="toggleForm()" id="toggleText">
+    Don't have an account? Sign Up
+</div>
+
+</div>
+
+<script>
+
+/* Theme */
+window.onload = function() {
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme === "dark") {
+        document.body.classList.add("dark");
+        document.getElementById("themeSwitch").checked = true;
+    }
+};
+
+document.getElementById("themeSwitch").addEventListener("change", function() {
+    document.body.classList.toggle("dark");
+    localStorage.setItem("theme",
+        document.body.classList.contains("dark") ? "dark" : "light");
+});
+
+/* Password Toggle */
+function togglePassword() {
+    const passwordInput = document.getElementById("password");
+    const slash = document.getElementById("eyeSlash");
+
+    if (passwordInput.type === "password") {
+        passwordInput.type = "text";
+        slash.style.display = "block";
+    } else {
+        passwordInput.type = "password";
+        slash.style.display = "none";
+    }
+}
+
+/* Login / Signup Toggle */
+let isLogin = true;
+
+function toggleForm() {
+    const title = document.getElementById("formTitle");
+    const nameField = document.getElementById("nameField");
+    const confirmField = document.getElementById("confirmField");
+    const button = document.getElementById("submitBtn");
+    const toggleText = document.getElementById("toggleText");
+    const socialSection = document.getElementById("socialSection");
+    const errorMsg = document.getElementById("errorMsg");
+
+    errorMsg.textContent = "";
+
+    if (isLogin) {
+        title.textContent = "Sign Up";
+        nameField.style.display = "block";
+        confirmField.style.display = "block";
+        button.textContent = "Sign Up";
+        toggleText.textContent = "Already have an account? Login";
+        socialSection.style.display = "block";
+    } else {
+        title.textContent = "Login";
+        nameField.style.display = "none";
+        confirmField.style.display = "none";
+        button.textContent = "Login";
+        toggleText.textContent = "Don't have an account? Sign Up";
+        socialSection.style.display = "none";
+    }
+
+    isLogin = !isLogin;
+}
+
+/* Validation */
+const strongPasswordRegex =
+/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
+
+document.getElementById("authForm").addEventListener("submit", function(e) {
+    let name = document.getElementById("name").value.trim();
+    let email = document.getElementById("email").value.trim();
+    let password = document.getElementById("password").value;
+    let confirm = document.getElementById("confirmPassword").value;
+    let errorMsg = document.getElementById("errorMsg");
+
+    errorMsg.textContent = "";
+
+    if (!email || !password || (!isLogin && (!name || !confirm))) {
+        errorMsg.textContent = "All fields are required!";
+        e.preventDefault(); // prevent form submission if fields empty
+        return;
+    }
+
+    if (!isLogin && !strongPasswordRegex.test(password)) {
+        errorMsg.textContent =
+        "Password must contain 8+ characters, uppercase, lowercase, number and special symbol.";
+        e.preventDefault();
+        return;
+    }
+
+    if (!isLogin && password !== confirm) {
+        errorMsg.textContent = "Passwords do not match!";
+        e.preventDefault();
+        return;
+    }
+
+    // Form now submits to login.php
+});
+
+</script>
+
+</body>
+</html>
